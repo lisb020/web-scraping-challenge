@@ -8,37 +8,37 @@ import time
 
 
 def init_browser():
-    # @NOTE: Replace the path with your actual path to the chromedriver
     executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
     return Browser("chrome", **executable_path, headless=False)
 
 
 def scrape():
+    #setup dictionary to return
+    results = {}
     # Scrape the nasa news
     #-----------------------
-    # Setup splinter
+    
     # URL of page to be scraped
     urlnasa = 'https://mars.nasa.gov/news/?page=0&per_page=40&order=publish_date+desc%2Ccreated_at+desc&search=&category=19%2C165%2C184%2C204&blank_scope=Latest'
-
+    # Setup splinter
     browser = init_browser()
     #open browser page
     browser.visit(urlnasa)
-    page = browser.html
     time.sleep(1)
+    page = browser.html
     # Create BeautifulSoup object; parse with 'lxml'
-    soup = BeautifulSoup(page, 'html.parser')
-    print(soup.prettify())
+    soup = BeautifulSoup(page, 'lxml')
     browser.quit()
     # find first/latest article
-    title_results = soup.find('div', class_='list_text').find('div', class_='content_title').text
-    teaser_results = soup.find('div', class_='article_teaser_body').text
-    
+    results["news_title"] = soup.find('div', class_='list_text').find('div', class_='content_title').text
+    results["news_summary"] = soup.find('div', class_='article_teaser_body').text
+
     #scraping Mars facts table
     #________________________
     urlfact = "https://space-facts.com/mars/"
     facttable = pd.read_html(urlfact)
     df = facttable[0]
-    html_table = df.to_html()
+    results["html_table"] = df.to_html()
 
     #scraping images
     #---------------
@@ -78,4 +78,7 @@ def scrape():
 
     browser.quit()
 
-    return hemisphere_image_urls
+    #put in results dictionary of all scraped results
+    results["hemispheres"] = hemisphere_image_urls
+
+    return results
