@@ -1,11 +1,7 @@
 import pandas as pd
 from bs4 import BeautifulSoup
-import requests
-import pymongo
 from splinter import Browser
 import time
-
-
 
 def init_browser():
     executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
@@ -38,6 +34,8 @@ def scrape():
     urlfact = "https://space-facts.com/mars/"
     facttable = pd.read_html(urlfact)
     df = facttable[0]
+    df = df.rename(columns={0: "", 1: "Mars"})
+    df = df.set_index("")
     results["html_table"] = df.to_html()
 
     #scraping images
